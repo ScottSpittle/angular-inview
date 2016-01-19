@@ -2,7 +2,7 @@
 (function() {
   'use strict';
   var _containersControllers, _windowEventsHandlerBinded, _windowInViewItems, addWindowInViewItem, angularInviewModule, bindWindowEvents, checkInView, debounce, getBoundingClientRect, getOffsetFromPercentage, getViewportHeight, offsetIsPercentage, removeWindowInViewItem, trackInViewContainer, triggerInViewCallback, unbindWindowEvents, untrackInViewContainer, windowCheckInView, windowEventsHandler,
-    slice = [].slice;
+      slice = [].slice;
 
   angularInviewModule = angular.module('angular-inview', []).directive('inView', [
     '$parse', function($parse) {
@@ -21,6 +21,7 @@
             offset: 0,
             customDebouncedCheck: null,
             callback: function($event, $inview, $inviewpart) {
+              //console.debug($inviewpart, $inview);
               if ($event == null) {
                 $event = {};
               }
@@ -37,6 +38,7 @@
             }
           };
           if ((attrs.inViewOptions != null) && (options = scope.$eval(attrs.inViewOptions))) {
+            item.customElement = options.customElement;
             item.offset = options.offset || [options.offsetTop || 0, options.offsetBottom || 0];
             if (options.debounce) {
               item.customDebouncedCheck = debounce((function(event) {
@@ -186,7 +188,7 @@
       return;
     }
     _windowEventsHandlerBinded = true;
-    return angular.element(window).bind('checkInView click ready scroll resize', windowEventsHandler);
+    return angular.element(window).bind('checkInView click ready wheel mousewheel DomMouseScroll MozMousePixelScroll resize', windowEventsHandler);
   };
 
   unbindWindowEvents = function() {
@@ -220,7 +222,7 @@
     var bounds, boundsBottom, boundsTop, element, item, j, k, len, len1, ref, ref1, ref2, ref3, results, viewport;
     viewport = {
       top: 0,
-      bottom: getViewportHeight()
+      bottom: getViewportHeight(items)
     };
     if (container && container !== window) {
       bounds = getBoundingClientRect(container);
@@ -264,9 +266,16 @@
     return (bounds.bottom - bounds.top) * (percentage / 100);
   };
 
-  getViewportHeight = function() {
+  getViewportHeight = function(items) {
     var height, mode, ref;
-    height = window.innerHeight;
+    if(items[0])
+    {
+      if(items[0].customElement)
+        height = angular.element('#'+items[0].customElement).innerHeight();
+    }
+    else
+      height = window.innerHeight;
+
     if (height) {
       return height;
     }
